@@ -3,8 +3,20 @@ class SessionsController < ApplicationController
   end
   
   def create
-    # TODO: authenticate user
-    flash["notice"] = "Nope."
+    @user = User.find_by({ "email" => params["email"] })
+    if @user && @user.authenticate(params["password"])
+      session["user_id"] = @user["id"]
+      flash["notice"] = "Welcome, #{@user["first_name"]}!"
+      redirect_to "/posts"
+    else
+      flash["notice"] = "Nope."
+      redirect_to "/login"
+    end
+  end
+
+  def destroy
+    session["user_id"] = nil
+    flash["notice"] = "Goodbye."
     redirect_to "/login"
   end
 end
